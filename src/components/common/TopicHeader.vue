@@ -1,6 +1,7 @@
 <template>
   <div class="bg-[#222]">
-    <div class="container flex justify-between items-center h-[45px] text-white font-oxu">
+    <div class="container flex justify-between items-center h-[45px] text-white font-oxu relative">
+      <!-- MAIN TOPICS -->
       <div class="flex justify-start items-center gap-1 h-full">
         <RouterLink
           :to="topic.slug"
@@ -14,6 +15,45 @@
           {{ topic.name }}
         </RouterLink>
       </div>
+      <!-- SECOND TOPICS -->
+      <button class="w-[18px] h-full flex justify-center items-center" @click="toggleMenu">
+        <div
+          :class="[
+            'cursor-pointer transition-all before:transition-all after:transition-all  w-full h-1 relative before:absolute after:absolute before:w-full after:w-full before:h-1 after:h-1  before:left-0 after:left-0 after:bg-white before:bg-white',
+            {
+              'before:rotate-45 after:-rotate-45 before:top-0 after:top-0 bg-transparent':
+                isMenuOpen
+            },
+            {
+              'before:rotate-0 after:rotate-0 before:-top-2 after:-bottom-2 bg-white': !isMenuOpen
+            }
+          ]"
+        ></div>
+      </button>
+      <!-- SECOND TOPICS MENU-->
+      <Transition
+        enter-active-class="transition-all duration-300 ease-in-out"
+        leave-active-class="transition-all duration-300 ease-in-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          class="w-[220px] absolute z-30 bg-white shadow-lg shadow-gray-600 right-0 top-[calc(100%-10px)] text-black flex flex-col py-6 px-[10px]"
+          v-show="isMenuOpen"
+        >
+          <RouterLink
+            :to="topic.slug"
+            v-for="topic in secondaryTopics"
+            :key="topic.name"
+            class="h-[24px] mb-[18px] text-[20px] px-[10px]"
+            @click="toggleMenu"
+          >
+            {{ topic.name.toUpperCase() }}
+          </RouterLink>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -101,6 +141,12 @@ const secondaryTopics = ref([
   {
     name: 'Ramazan 2023',
     slug: '/ramazan-2023'
+  },
+  {
+    name: 'Formula 1',
+    slug: '/formula-1'
   }
 ])
+
+const toggleMenu = () => (isMenuOpen.value = !isMenuOpen.value)
 </script>

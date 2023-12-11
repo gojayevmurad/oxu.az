@@ -1,5 +1,10 @@
 <template>
-  <div class="bg-[url('@/assets/sitenavigationbg.webp')] h-[45px] text-white flex items-center">
+  <div
+    :class="[
+      'bg-[url(\'@/assets/sitenavigationbg.webp\')] h-[45px] text-white flex items-center transition duration-300',
+      scrolled && 'fixed top-0 w-full z-50'
+    ]"
+  >
     <div class="container flex justify-between items-center font-oxu">
       <!-- LOGO -->
       <div class="flex justify-center items-center gap-1">
@@ -27,26 +32,29 @@
           </a>
         </div>
         <div class="h-full relative border-gray-500 border">
-          <input
-            class="text-white outline-none pr-7 pl-1 bg-transparent"
-            placeholder="Axtarış"
-            type="search"
-          />
-          <button class="absolute right-1 h-full">
-            <svg
-              data-name="Livello 1"
-              id="Livello_1"
-              viewBox="0 0 128 128"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-full py-[2px]"
-              fill="#fff"
+          <div>
+            <input
+              class="text-white outline-none pr-7 pl-1 bg-transparent"
+              placeholder="Axtarış"
+              type="search"
+              v-model="searchInput"
+              @input="handleInput"
+            />
+            <Transition
+              enter-active-class="transition ease-in-out duration-300"
+              enter-from-class="opacity-0"
+              enter-to-class="opacity-100"
+              leave-active-class="transition ease-in-out duration-300"
+              leave-from-class="opacity-100"
+              leave-to-class="opacity-0"
             >
-              <title />
-              <path
-                d="M127.11,122.87l-48.45-48A45,45,0,0,0,45,0,44.7,44.7,0,0,0,13.18,13.18h0A45,45,0,0,0,45,90,44.65,44.65,0,0,0,74.38,79.07l48.51,48.06a3,3,0,1,0,4.22-4.26ZM17.42,72.58a39,39,0,0,1,0-55.15h0A39,39,0,1,1,72.58,72.58a39,39,0,0,1-55.15,0Z"
-              />
-            </svg>
-          </button>
+              <div class="absolute w-full bg-white  z-50" v-show="searchResults.length > 0">
+                <p v-for="(searchResult, index) in searchResults" :key="index" class="text-black">
+                  {{ searchResult }}
+                </p>
+              </div>
+            </Transition>
+          </div>
         </div>
         <div class="cursor-pointer">
           <p class="border-b-white border-b-2 leading-[0.8]">RU</p>
@@ -57,7 +65,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { getQueries } from '@/api/search'
+import { onMounted, onUnmounted, ref } from 'vue'
+
+const scrolled = ref(false)
+
+const searchInterval = ref(0)
+const searchInput = ref('')
+const searchResults = ref([])
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+const handleScroll = () => {
+  scrolled.value = window.scrollY > 150
+}
+
+const handleInput = async () => {
+  clearTimeout(searchInterval.value)
+  searchInterval.value = setTimeout(() => {
+    getQueries(searchInput.value).then((data) => {
+      searchResults.value = data as unknown as never[]
+    })
+  }, 300)
+}
 
 const routes = ref([
   {
